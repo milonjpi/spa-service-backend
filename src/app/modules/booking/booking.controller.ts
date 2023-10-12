@@ -56,12 +56,12 @@ const confirmBooking = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// reject booking
-const rejectBooking = catchAsync(async (req: Request, res: Response) => {
+// cancel booking
+const cancelBooking = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const user = req.user as Pick<User, 'id' | 'role'>;
 
-  const result = await BookingService.rejectBooking(id, user);
+  const result = await BookingService.cancelBooking(id, user);
 
   sendResponse<Booking>(res, {
     statusCode: httpStatus.OK,
@@ -75,5 +75,5 @@ export const BookingController = {
   createBooking,
   getAllBookings,
   confirmBooking,
-  rejectBooking,
+  cancelBooking,
 };

@@ -67,7 +67,7 @@ const getAllBookings = async (
 // confirm booking
 const confirmBooking = async (
   id: string,
-  payload: Pick<Booking, 'dateTime'>
+  payload: Pick<Booking, 'scheduleTime'>
 ): Promise<Booking | null> => {
   // check is exist
   const isExist = await prisma.booking.findUnique({
@@ -77,7 +77,7 @@ const confirmBooking = async (
   });
 
   if (!isExist) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Service Booking Not Found');
+    throw new ApiError(httpStatus.NOT_FOUND, 'Booking Not Found to confirm');
   }
 
   const result = await prisma.booking.update({
@@ -85,8 +85,8 @@ const confirmBooking = async (
       id,
     },
     data: {
-      dateTime: payload.dateTime,
-      status: BookingStatus.accepted,
+      scheduleTime: payload.scheduleTime,
+      status: BookingStatus.confirmed,
     },
   });
 
@@ -97,8 +97,8 @@ const confirmBooking = async (
   return result;
 };
 
-// reject booking
-const rejectBooking = async (
+// cancel booking
+const cancelBooking = async (
   id: string,
   user: Pick<User, 'id' | 'role'>
 ): Promise<Booking | null> => {
@@ -110,7 +110,7 @@ const rejectBooking = async (
   });
 
   if (!isExist) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Service Booking Not Found');
+    throw new ApiError(httpStatus.NOT_FOUND, 'Booking Not Found to reject');
   }
 
   if (user.role === UserRole.user && user.id !== isExist.userId) {
@@ -122,7 +122,7 @@ const rejectBooking = async (
       id,
     },
     data: {
-      status: BookingStatus.rejected,
+      status: BookingStatus.canceled,
     },
   });
 
@@ -133,5 +133,5 @@ export const BookingService = {
   createBooking,
   getAllBookings,
   confirmBooking,
-  rejectBooking,
+  cancelBooking,
 };
