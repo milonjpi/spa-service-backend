@@ -73,6 +73,7 @@ const confirmBooking = async (
   const isExist = await prisma.booking.findUnique({
     where: {
       id,
+      status: { equals: BookingStatus.pending },
     },
   });
 
@@ -106,6 +107,7 @@ const cancelBooking = async (
   const isExist = await prisma.booking.findUnique({
     where: {
       id,
+      status: { in: ['pending', 'confirmed'] },
     },
   });
 

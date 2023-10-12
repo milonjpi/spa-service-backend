@@ -15,7 +15,7 @@ const confirm = z.object({
   }),
 });
 
-export const ServiceValidation = {
+export const BookingValidation = {
   create,
   confirm,
 };
