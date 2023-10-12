@@ -33,9 +33,10 @@ model User {
 }
 
 model Service {
-  id          String        @id @default(uuid())
+  id          String          @id @default(uuid())
   serviceName String
   description String
+  category    ServiceCategory
   photo       String?
   price       Int
   status      ServiceStatus
@@ -146,6 +147,11 @@ enum UserRole {
   super_admin
   admin
   user
+}
+
+enum ServiceCategory {
+  male
+  female
 }
 
 enum ServiceStatus {
