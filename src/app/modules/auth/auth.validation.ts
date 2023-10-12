@@ -6,20 +6,23 @@ const signUp = z.object({
     fullName: z.string({
       required_error: 'Full Name is required',
     }),
-    email: z.string({
-      required_error: 'Email is required',
-    }),
+    email: z
+      .string({
+        required_error: 'Email is required',
+      })
+      .email({ message: 'Invalid Email Address' }),
     password: z.string({
       required_error: 'Password is required',
     }),
     role: z.enum(userRoles as [string, ...string[]]).optional(),
-    profileImg: z.string().optional(),
   }),
 });
 
 const signIn = z.object({
   body: z.object({
-    email: z.string({ required_error: 'Email is Required' }),
+    email: z
+      .string({ required_error: 'Email is Required' })
+      .email({ message: 'Invalid Email Address' }),
     password: z.string({ required_error: 'Password is Required' }),
   }),
 });

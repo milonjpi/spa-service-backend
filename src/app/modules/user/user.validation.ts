@@ -7,6 +7,8 @@ const update = z.object({
     email: z.string().optional(),
     password: z.string().optional(),
     role: z.enum(userRoles as [string, ...string[]]).optional(),
+    mobile: z.string().optional().nullable(),
+    address: z.string().optional().nullable(),
     profileImg: z.string().optional().nullable(),
   }),
 });

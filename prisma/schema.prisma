@@ -15,12 +15,130 @@ model User {
   fullName   String
   email      String   @unique
   password   String
+  mobile     String?
+  address    String?
   role       UserRole @default(user)
   profileImg String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviewRatings ReviewRating[]
+  bookings      Booking[]
+  notifications Notification[]
+  feedbacks     Feedback[]
+  blogs         Blog[]
 
   @@map("users")
+}
+
+model Service {
+  id          String        @id @default(uuid())
+  serviceName String
+  description String
+  photo       String?
+  price       Int
+  status      ServiceStatus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviewRatings ReviewRating[]
+  bookings      Booking[]
+
+  @@map("services")
+}
+
+model ReviewRating {
+  id String @id @default(uuid())
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  review String
+  rating String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
+}
+
+model Booking {
+  id String @id @default(uuid())
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  dateTime DateTime
+  price    Int
+  status   BookingStatus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bookings")
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  notification String
+  viewed       Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notifications")
+}
+
+model Feedback {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  comment    String
+  suggestion String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("feedbacks")
+}
+
+model Blog {
+  id          String  @id @default(uuid())
+  title       String
+  description String
+  photo       String?
+  userId      String
+  writtenBy   User    @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("blogs")
+}
+
+model Faq {
+  id       String @id @default(uuid())
+  question String
+  answer   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("faqs")
 }
 
 // ENUMS
@@ -28,4 +146,17 @@ enum UserRole {
   super_admin
   admin
   user
+}
+
+enum ServiceStatus {
+  upcoming
+  available
+  notAvailable
+}
+
+enum BookingStatus {
+  pending
+  accepted
+  rejected
+  completed
 }
