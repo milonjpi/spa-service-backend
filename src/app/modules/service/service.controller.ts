@@ -5,14 +5,14 @@ import httpStatus from 'http-status';
 import { Service } from '@prisma/client';
 import pick from '../../../shared/pick';
 import { paginationFields } from '../../../constants/pagination';
-import { SpaServices } from './service.service';
+import { SpaService } from './service.service';
 import { serviceFilterableFields } from './service.constant';
 
 // create service
 const createService = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
 
-  const result = await SpaServices.createService(data);
+  const result = await SpaService.createService(data);
 
   sendResponse<Service>(res, {
     success: true,
@@ -27,7 +27,7 @@ const getAllServices = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, serviceFilterableFields);
   const paginationOptions = pick(req.query, paginationFields);
 
-  const result = await SpaServices.getAllServices(filters, paginationOptions);
+  const result = await SpaService.getAllServices(filters, paginationOptions);
 
   sendResponse<Service[]>(res, {
     statusCode: httpStatus.OK,
@@ -42,7 +42,7 @@ const getAllServices = catchAsync(async (req: Request, res: Response) => {
 const getSingleService = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const result = await SpaServices.getSingleService(id);
+  const result = await SpaService.getSingleService(id);
 
   sendResponse<Service>(res, {
     statusCode: httpStatus.OK,
@@ -57,7 +57,7 @@ const updateService = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const data = req.body;
 
-  const result = await SpaServices.updateService(id, data);
+  const result = await SpaService.updateService(id, data);
 
   sendResponse<Service>(res, {
     success: true,
@@ -71,7 +71,7 @@ const updateService = catchAsync(async (req: Request, res: Response) => {
 const deleteService = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const result = await SpaServices.deleteService(id);
+  const result = await SpaService.deleteService(id);
 
   sendResponse<Service>(res, {
     statusCode: httpStatus.OK,

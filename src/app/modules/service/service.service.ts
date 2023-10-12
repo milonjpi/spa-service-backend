@@ -151,7 +151,7 @@ const deleteService = async (id: string): Promise<Service | null> => {
   return result;
 };
 
-export const SpaServices = {
+export const SpaService = {
   createService,
   getAllServices,
   getSingleService,
