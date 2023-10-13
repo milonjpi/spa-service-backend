@@ -2,6 +2,7 @@ export const serviceSearchableFields = ['serviceName', 'description'];
 
 export const serviceFilterableFields = [
   'searchTerm',
+  'serviceNo',
   'category',
   'minPrice',
   'maxPrice',

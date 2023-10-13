@@ -7,9 +7,14 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IServiceFilters } from './service.interface';
 import { serviceSearchableFields } from './service.constant';
+import { generateServiceNo } from './service.utils';
 
 // create service
 const createService = async (data: Service): Promise<Service | null> => {
+  // generate service no
+  const serviceNo = await generateServiceNo();
+  data.serviceNo = serviceNo;
+
   const result = await prisma.service.create({ data });
 
   if (!result) {
