@@ -12,6 +12,9 @@ import { bookingFilterableFields } from './booking.constant';
 const createBooking = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
 
+  const user = req.user as Pick<User, 'id' | 'role'>;
+  data.userId = user.id;
+
   const result = await BookingService.createBooking(data);
 
   sendResponse<Booking>(res, {

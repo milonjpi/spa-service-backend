@@ -2,12 +2,14 @@ import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
-import { ReviewRating } from '@prisma/client';
+import { ReviewRating, User } from '@prisma/client';
 import { ReviewService } from './review.service';
 
 // create review
 const createReview = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
+  const user = req.user as Pick<User, 'id' | 'role'>;
+  data.userId = user.id;
 
   const result = await ReviewService.createReview(data);
 

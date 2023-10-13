@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
-import { Feedback } from '@prisma/client';
+import { Feedback, User } from '@prisma/client';
 import pick from '../../../shared/pick';
 import { paginationFields } from '../../../constants/pagination';
 import { FeedbackService } from './feedback.service';
@@ -11,6 +11,8 @@ import { feedbackFilterableFields } from './feedback.constant';
 // create feedback
 const createFeedback = catchAsync(async (req: Request, res: Response) => {
   const data = req.body;
+  const user = req.user as Pick<User, 'id' | 'role'>;
+  data.userId = user.id;
 
   const result = await FeedbackService.createFeedback(data);
 
