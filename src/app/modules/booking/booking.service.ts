@@ -6,10 +6,25 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IBookingFilters } from './booking.interface';
+import { generateBookingNo } from './booking.utils';
 
 // create booking
 const createBooking = async (data: Booking): Promise<Booking | null> => {
-  const result = await prisma.booking.create({ data });
+  const result = await prisma.$transaction(async trans => {
+    // generate booking no
+    const bookingNo = await generateBookingNo();
+    data.bookingNo = bookingNo;
+    const creating = await trans.booking.create({ data });
+
+    await trans.notification.create({
+      data: {
+        userId: creating.userId,
+        notification: `You place a service booking. your booking no is ${creating.bookingNo}.`,
+      },
+    });
+
+    return creating;
+  });
 
   if (!result) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create booking');
@@ -81,14 +96,25 @@ const confirmBooking = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Booking Not Found to confirm');
   }
 
-  const result = await prisma.booking.update({
-    where: {
-      id,
-    },
-    data: {
-      scheduleTime: payload.scheduleTime,
-      status: BookingStatus.confirmed,
-    },
+  const result = await prisma.$transaction(async trans => {
+    const confirming = await prisma.booking.update({
+      where: {
+        id,
+      },
+      data: {
+        scheduleTime: payload.scheduleTime,
+        status: BookingStatus.confirmed,
+      },
+    });
+
+    await trans.notification.create({
+      data: {
+        userId: confirming.userId,
+        notification: `You booking no ${confirming.bookingNo} has been confirmed.`,
+      },
+    });
+
+    return confirming;
   });
 
   if (!result) {
@@ -119,14 +145,29 @@ const cancelBooking = async (
     throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
   }
 
-  const result = await prisma.booking.update({
-    where: {
-      id,
-    },
-    data: {
-      status: BookingStatus.canceled,
-    },
+  const result = await prisma.$transaction(async trans => {
+    const canceling = await prisma.booking.update({
+      where: {
+        id,
+      },
+      data: {
+        status: BookingStatus.canceled,
+      },
+    });
+
+    await trans.notification.create({
+      data: {
+        userId: canceling.userId,
+        notification: `You booking no ${canceling.bookingNo} has been canceled.`,
+      },
+    });
+
+    return canceling;
   });
+
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Cancel Booking');
+  }
 
   return result;
 };
