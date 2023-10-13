@@ -62,15 +62,6 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 
   const result = await AuthService.refreshToken(refreshToken);
 
-  // set refresh token into cookie
-  const cookieOptions = {
-    secure: false,
-    httpOnly: true,
-    maxAge: parseInt(config.jwt.cookie_max_age || '2592000000'),
-  };
-
-  res.cookie('refreshToken', refreshToken, cookieOptions);
-
   sendResponse<IRefreshTokenResponse>(res, {
     statusCode: 200,
     success: true,
