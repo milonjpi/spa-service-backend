@@ -1,7 +1,7 @@
 export type IServiceFilters = {
   searchTerm?: string;
   category?: string;
-  minPrice?: number;
-  maxPrice?: number;
+  minPrice?: string;
+  maxPrice?: string;
   status?: string;
 };
