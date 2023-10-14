@@ -12,9 +12,9 @@ router.post(
   AuthController.signUp
 );
 
-// user signUp
+// user login
 router.post(
-  '/signin',
+  '/login',
   validateRequest(AuthValidation.signIn),
   AuthController.signIn
 );
