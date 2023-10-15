@@ -8,6 +8,7 @@ import handleZodError from '../../errors/handleZodError';
 import { Prisma } from '@prisma/client';
 import handleClientError from '../../errors/handleClientError';
 import config from '../../config';
+import handleInitializeError from '../../errors/handleInitializeError';
 
 const globalErrorHandler: ErrorRequestHandler = (
   err,
@@ -23,7 +24,12 @@ const globalErrorHandler: ErrorRequestHandler = (
   let message = 'Something went wrong !';
   let errorMessages: IGenericErrorMessage[] = [];
 
-  if (err instanceof Prisma.PrismaClientValidationError) {
+  if (err instanceof Prisma.PrismaClientInitializationError) {
+    const simplifiedError = handleInitializeError(err);
+    statusCode = simplifiedError?.statusCode;
+    message = simplifiedError?.message;
+    errorMessages = simplifiedError.errorMessages;
+  } else if (err instanceof Prisma.PrismaClientValidationError) {
     const simplifiedError = handleValidationError(err);
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
