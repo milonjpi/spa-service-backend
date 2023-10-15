@@ -1,9 +1,14 @@
 import httpStatus from 'http-status';
 import bcrypt from 'bcrypt';
 import prisma from '../../../shared/prisma';
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
 import config from '../../../config';
+import { IUserFilters } from './user.interface';
+import { IPaginationOptions } from '../../../interfaces/pagination';
+import { IGenericResponse } from '../../../interfaces/common';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { userSearchableFields } from './user.constant';
 
 // create user
 const createUser = async (data: User): Promise<User | null> => {
@@ -21,10 +26,53 @@ const createUser = async (data: User): Promise<User | null> => {
 };
 
 // get all users
-const getAllUsers = async (): Promise<User[]> => {
-  const result = await prisma.user.findMany();
+const getAllUsers = async (
+  filters: IUserFilters,
+  paginationOptions: IPaginationOptions
+): Promise<IGenericResponse<User[]>> => {
+  const { searchTerm } = filters;
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(paginationOptions);
 
-  return result;
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: userSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  const whereConditions: Prisma.UserWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.user.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+  });
+
+  const total = await prisma.user.count({
+    where: whereConditions,
+  });
+  const totalPage = Math.ceil(total / limit);
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPage,
+    },
+    data: result,
+  };
 };
 
 // get single user

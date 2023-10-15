@@ -11,6 +11,7 @@ const router = express.Router();
 router.post(
   '/create',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  validateRequest(UserValidation.create),
   UserController.createUser
 );
 
@@ -18,7 +19,6 @@ router.post(
 router.get(
   '/',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  validateRequest(UserValidation.create),
   UserController.getAllUsers
 );
 
