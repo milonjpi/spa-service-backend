@@ -30,7 +30,7 @@ const getAllUsers = async (
   filters: IUserFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<User[]>> => {
-  const { searchTerm } = filters;
+  const { searchTerm, role } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
 
@@ -44,6 +44,12 @@ const getAllUsers = async (
           mode: 'insensitive',
         },
       })),
+    });
+  }
+
+  if (role) {
+    andConditions.push({
+      role: { in: JSON.parse(role) },
     });
   }
 
