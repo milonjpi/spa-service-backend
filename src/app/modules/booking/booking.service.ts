@@ -1,6 +1,13 @@
 import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
-import { Booking, BookingStatus, Prisma, User, UserRole } from '@prisma/client';
+import {
+  Booking,
+  BookingStatus,
+  Prisma,
+  ServiceStatus,
+  User,
+  UserRole,
+} from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
@@ -10,6 +17,13 @@ import { generateBookingNo } from './booking.utils';
 
 // create booking
 const createBooking = async (data: Booking): Promise<Booking | null> => {
+  const isExist = await prisma.service.findFirst({
+    where: { id: data?.serviceId, status: ServiceStatus.available },
+  });
+
+  if (!isExist) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'This service not available');
+  }
   const result = await prisma.$transaction(async trans => {
     // generate booking no
     const bookingNo = await generateBookingNo();
