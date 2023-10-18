@@ -74,9 +74,24 @@ const cancelBooking = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// complete service
+const completeService = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await BookingService.completeService(id);
+
+  sendResponse<Booking>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Service Completed Successfully',
+    data: result,
+  });
+});
+
 export const BookingController = {
   createBooking,
   getAllBookings,
   confirmBooking,
   cancelBooking,
+  completeService,
 };

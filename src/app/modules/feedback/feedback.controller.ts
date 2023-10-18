@@ -29,7 +29,10 @@ const getAllFeedbacks = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, feedbackFilterableFields);
   const paginationOptions = pick(req.query, paginationFields);
 
+  const user = req.user as Pick<User, 'id' | 'role'>;
+
   const result = await FeedbackService.getAllFeedbacks(
+    user,
     filters,
     paginationOptions
   );
@@ -57,8 +60,24 @@ const getFeedbacksForPublic = catchAsync(
   }
 );
 
+// delete feedback
+const deleteFeedback = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const user = req.user as Pick<User, 'id' | 'role'>;
+
+  const result = await FeedbackService.deleteFeedback(id, user);
+
+  sendResponse<Feedback>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Feedback Deleted successfully',
+    data: result,
+  });
+});
+
 export const FeedbackController = {
   createFeedback,
   getAllFeedbacks,
   getFeedbacksForPublic,
+  deleteFeedback,
 };

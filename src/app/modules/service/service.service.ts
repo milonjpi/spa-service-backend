@@ -67,11 +67,11 @@ const getAllServices = async (
 
   const result = await prisma.service.findMany({
     where: whereConditions,
-    skip,
-    take: limit,
     orderBy: {
       [sortBy]: sortOrder,
     },
+    skip,
+    take: limit,
   });
 
   const total = await prisma.service.count({

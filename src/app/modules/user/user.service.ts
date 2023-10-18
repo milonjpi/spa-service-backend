@@ -58,11 +58,11 @@ const getAllUsers = async (
 
   const result = await prisma.user.findMany({
     where: whereConditions,
-    skip,
-    take: limit,
     orderBy: {
       [sortBy]: sortOrder,
     },
+    skip,
+    take: limit,
   });
 
   const total = await prisma.user.count({

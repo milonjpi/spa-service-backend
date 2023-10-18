@@ -56,10 +56,14 @@ const getAllBookings = async (
 
   const result = await prisma.booking.findMany({
     where: whereConditions,
-    skip,
-    take: limit,
     orderBy: {
       [sortBy]: sortOrder,
+    },
+    skip,
+    take: limit,
+    include: {
+      user: true,
+      service: true,
     },
   });
 
@@ -172,9 +176,51 @@ const cancelBooking = async (
   return result;
 };
 
+// complete service
+const completeService = async (id: string): Promise<Booking | null> => {
+  // check is exist
+  const isExist = await prisma.booking.findUnique({
+    where: {
+      id,
+      status: { equals: BookingStatus.confirmed },
+    },
+  });
+
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Booking Not Found to Complete');
+  }
+
+  const result = await prisma.$transaction(async trans => {
+    const completing = await prisma.booking.update({
+      where: {
+        id,
+      },
+      data: {
+        status: BookingStatus.completed,
+      },
+    });
+
+    await trans.notification.create({
+      data: {
+        userId: completing.userId,
+        notification: `You booking no ${completing.bookingNo} has been confirmed.`,
+      },
+    });
+
+    return completing;
+  });
+
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Complete Booking');
+  }
+
+  return result;
+};
+
 export const BookingService = {
   createBooking,
   getAllBookings,
   confirmBooking,
   cancelBooking,
+  completeService,
 };

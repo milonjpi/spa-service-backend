@@ -46,11 +46,11 @@ const getAllFaqs = async (
 
   const result = await prisma.faq.findMany({
     where: whereConditions,
-    skip,
-    take: limit,
     orderBy: {
       [sortBy]: sortOrder,
     },
+    skip,
+    take: limit,
   });
 
   const total = await prisma.faq.count({

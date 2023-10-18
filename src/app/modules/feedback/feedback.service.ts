@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import prisma from '../../../shared/prisma';
-import { Feedback, Prisma } from '@prisma/client';
+import { Feedback, Prisma, User, UserRole } from '@prisma/client';
 import ApiError from '../../../errors/ApiError';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
@@ -21,6 +21,7 @@ const createFeedback = async (data: Feedback): Promise<Feedback | null> => {
 
 // get all feedbacks
 const getAllFeedbacks = async (
+  user: Pick<User, 'id' | 'role'>,
   filters: IFeedbackFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<Feedback[]>> => {
@@ -29,6 +30,12 @@ const getAllFeedbacks = async (
     paginationHelpers.calculatePagination(paginationOptions);
 
   const andConditions = [];
+
+  if (user.role === UserRole.user) {
+    andConditions.push({
+      userId: user.id,
+    });
+  }
 
   if (searchTerm) {
     andConditions.push({
@@ -54,13 +61,13 @@ const getAllFeedbacks = async (
 
   const result = await prisma.feedback.findMany({
     where: whereConditions,
-    include: {
-      user: true,
+    orderBy: {
+      [sortBy]: sortOrder,
     },
     skip,
     take: limit,
-    orderBy: {
-      [sortBy]: sortOrder,
+    include: {
+      user: true,
     },
   });
 
@@ -82,12 +89,41 @@ const getAllFeedbacks = async (
 
 const getFeedbacksForPublic = async (): Promise<Feedback[]> => {
   const result = await prisma.feedback.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: 10,
     include: {
       user: true,
     },
-    take: 10,
-    orderBy: {
-      createdAt: 'desc',
+  });
+
+  return result;
+};
+
+// delete Feedback
+const deleteFeedback = async (
+  id: string,
+  user: Pick<User, 'id' | 'role'>
+): Promise<Feedback | null> => {
+  // check is exist
+  const isExist = await prisma.feedback.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Feedback Not Found');
+  }
+
+  if (user.id !== isExist.userId) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not Authorized!!');
+  }
+
+  const result = await prisma.feedback.delete({
+    where: {
+      id,
     },
   });
 
@@ -98,4 +134,5 @@ export const FeedbackService = {
   createFeedback,
   getAllFeedbacks,
   getFeedbacksForPublic,
+  deleteFeedback,
 };

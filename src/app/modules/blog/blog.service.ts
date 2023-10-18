@@ -54,13 +54,13 @@ const getAllBlogs = async (
 
   const result = await prisma.blog.findMany({
     where: whereConditions,
-    include: {
-      writtenBy: true,
+    orderBy: {
+      [sortBy]: sortOrder,
     },
     skip,
     take: limit,
-    orderBy: {
-      [sortBy]: sortOrder,
+    include: {
+      writtenBy: true,
     },
   });
 

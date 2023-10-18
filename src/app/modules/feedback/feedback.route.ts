@@ -16,9 +16,20 @@ router.post(
 );
 
 // get all feedbacks
-router.get('/', auth(ENUM_USER_ROLE.ADMIN), FeedbackController.getAllFeedbacks);
+router.get(
+  '/',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  FeedbackController.getAllFeedbacks
+);
 
 // get feedbacks for public
 router.get('/public-feedback', FeedbackController.getFeedbacksForPublic);
+
+// delete Feedback
+router.delete(
+  '/:id',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.USER),
+  FeedbackController.deleteFeedback
+);
 
 export const FeedbackRoutes = router;

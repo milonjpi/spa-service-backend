@@ -30,11 +30,11 @@ const getAllNotifications = async (
 
   const result = await prisma.notification.findMany({
     where: whereConditions,
-    skip,
-    take: limit,
     orderBy: {
       [sortBy]: sortOrder,
     },
+    skip,
+    take: limit,
   });
 
   const total = await prisma.notification.count({

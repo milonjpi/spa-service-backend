@@ -37,4 +37,11 @@ router.patch(
   BookingController.cancelBooking
 );
 
+// complete service
+router.patch(
+  '/:id/complete',
+  auth(ENUM_USER_ROLE.ADMIN),
+  BookingController.completeService
+);
+
 export const BookingRoutes = router;
