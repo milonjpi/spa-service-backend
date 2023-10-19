@@ -9,7 +9,7 @@ import { Secret } from 'jsonwebtoken';
 import { ILoginUserResponse, IRefreshTokenResponse } from './auth.interface';
 
 // signup
-const signUp = async (data: User): Promise<User | null> => {
+const signUp = async (data: User): Promise<ILoginUserResponse> => {
   data.password = await bcrypt.hash(
     data.password,
     Number(config.bcrypt_salt_rounds)
@@ -20,7 +20,25 @@ const signUp = async (data: User): Promise<User | null> => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to Signup');
   }
 
-  return result;
+  // create access token and refresh token
+  const { id, role } = result;
+
+  const accessToken = jwtHelpers.createToken(
+    { id, role },
+    config.jwt.secret as Secret,
+    config.jwt.expires_in as string
+  );
+
+  const refreshToken = jwtHelpers.createToken(
+    { id, role },
+    config.jwt.refresh_secret as Secret,
+    config.jwt.refresh_expires_in as string
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+  };
 };
 
 // signIn
