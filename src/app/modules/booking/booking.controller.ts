@@ -29,8 +29,10 @@ const createBooking = catchAsync(async (req: Request, res: Response) => {
 const getAllBookings = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, bookingFilterableFields);
   const paginationOptions = pick(req.query, paginationFields);
+  const user = req.user as Pick<User, 'id' | 'role'>;
 
   const result = await BookingService.getAllBookings(
+    user,
     filters,
     paginationOptions
   );

@@ -49,6 +49,7 @@ const createBooking = async (data: Booking): Promise<Booking | null> => {
 
 // get all bookings
 const getAllBookings = async (
+  user: Pick<User, 'id' | 'role'>,
   filters: IBookingFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<Booking[]>> => {
@@ -56,6 +57,12 @@ const getAllBookings = async (
     paginationHelpers.calculatePagination(paginationOptions);
 
   const andConditions = [];
+
+  if (user.role === UserRole.user) {
+    andConditions.push({
+      userId: user.id,
+    });
+  }
 
   if (Object.keys(filters).length > 0) {
     andConditions.push({
@@ -217,7 +224,7 @@ const completeService = async (id: string): Promise<Booking | null> => {
     await trans.notification.create({
       data: {
         userId: completing.userId,
-        notification: `You booking no ${completing.bookingNo} has been confirmed.`,
+        notification: `You booking no ${completing.bookingNo} has been Completed.`,
       },
     });
 
