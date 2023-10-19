@@ -16,11 +16,14 @@ const signUp = catchAsync(async (req: Request, res: Response) => {
 
   // set refresh token into cookie
   const cookieOptions = {
-    secure: false,
+    secure: true,
     httpOnly: true,
-    maxAge: parseInt(config.jwt.cookie_max_age || '2592000000'),
+    sameSite: 'none',
+    maxAge: parseInt(config.jwt.cookie_max_age || '31536000000'),
   };
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
   res.cookie('refreshToken', refreshToken, cookieOptions);
 
   sendResponse<ILoginUserResponse>(res, {
@@ -40,11 +43,14 @@ const signIn = catchAsync(async (req: Request, res: Response) => {
 
   // set refresh token into cookie
   const cookieOptions = {
-    secure: false,
+    secure: true,
     httpOnly: true,
-    maxAge: parseInt(config.jwt.cookie_max_age || '2592000000'),
+    sameSite: 'none',
+    maxAge: parseInt(config.jwt.cookie_max_age || '31536000000'),
   };
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
   res.cookie('refreshToken', refreshToken, cookieOptions);
 
   sendResponse<ILoginUserResponse>(res, {
